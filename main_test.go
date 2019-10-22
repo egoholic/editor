@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/egoholic/blog/config"
+	. "github.com/egoholic/editor/config"
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/colors"
-	. "github.com/egoholic/blog/lib/store/seed"
 	"github.com/sclevine/agouti"
+	. "github.com/stoa-bd/blogging-schema/seed"
 )
 
 var (
