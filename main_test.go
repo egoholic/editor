@@ -15,6 +15,7 @@ import (
 
 	"github.com/DATA-DOG/godog"
 	"github.com/DATA-DOG/godog/colors"
+	"github.com/DATA-DOG/godog/gherkin"
 	"github.com/sclevine/agouti"
 	. "github.com/stoa-bd/blogging-schema/seed"
 )
@@ -37,6 +38,26 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func thereIsAClientCompany() error {
+	return godog.ErrPending
+}
+
+func itHadTheFollowingEditors() error {
+	return godog.ErrPending
+}
+
+func iSubmitedTheFollowingCredentials(arg1 *gherkin.DataTable) error {
+	return godog.ErrPending
+}
+
+func iGotAccessToken() error {
+	return godog.ErrPending
+}
+
+func iGotResponse(arg1 string) error {
+	return godog.ErrPending
 }
 
 func FeatureContext(s *godog.Suite) {
@@ -92,11 +113,15 @@ func FeatureContext(s *godog.Suite) {
 		}
 	})
 
-	s.Step(``, func() {})
+	s.Step(`^there is a client company$`, thereIsAClientCompany)
+	s.Step(`^it had the following editors:$`, itHadTheFollowingEditors)
+	s.Step(`^I submited the following credentials:$`, iSubmitedTheFollowingCredentials)
+	s.Step(`^I got access token$`, iGotAccessToken)
+	s.Step(`^I got "([^"]*)" response$`, iGotResponse)
 }
 
 func stopBlogApp() (err error) {
-	fmt.Println("stopping blog app")
+	fmt.Println("stopping editor app")
 	file, err := os.Open(PIDFilePath)
 	if err != nil {
 		return
