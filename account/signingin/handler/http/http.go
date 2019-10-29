@@ -15,8 +15,8 @@ import (
 )
 
 type form struct {
-	Login    []byte `json:"login"`
-	Password []byte `json:"password"`
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }
 
 func New(ctx context.Context, db *sql.DB, logger *log.Logger, errBack *errback.ErrBack) func(w http.ResponseWriter, r *http.Request, p *params.Params) {
@@ -35,13 +35,12 @@ func New(ctx context.Context, db *sql.DB, logger *log.Logger, errBack *errback.E
 			return
 		}
 		repo := repository.New(ctx, db, logger)
-		value, err := signingin.New(logger, repo, form.Login, form.Password)
+		value, err := signingin.New(logger, repo, repo, form.Login, form.Password)
 		if err != nil {
 			logger.Printf("error: %s", err.Error())
 			errBack.HandleNotFound(w, r, p)
 			return
 		}
-		logger.Panicf("aaaaaaaaa %s", value.AccessToken())
 		w.Header().Set("Access-Token", value.AccessToken())
 		w.WriteHeader(204)
 	}

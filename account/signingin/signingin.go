@@ -1,31 +1,59 @@
 package signingin
 
 import (
+	"errors"
 	"log"
+	"time"
 
 	"github.com/egoholic/editor/lib/pwd"
 )
 
 type (
+	Signin struct {
+		Login     string
+		CreatedAt time.Time
+	}
 	Value struct {
 		logger      *log.Logger
 		accessToken string
 	}
-	AccessTokenProvider interface {
-		AccessToken(login, passwords string) (string, error)
+	AccountAuthenticator interface {
+		IsAuthenticated(login, password string) (ok bool, err error)
+	}
+	SigninSaver interface {
+		Save(*Signin) (string, error)
 	}
 )
 
-func New(l *log.Logger, atp AccessTokenProvider, login, password []byte) (*Value, error) {
-	ep, err := pwd.Encrypt(password, login)
+func New(l *log.Logger, aa AccountAuthenticator, sis SigninSaver, login, password string) (*Value, error) {
+	var (
+		err   error
+		token string
+	)
+	ep, err := pwd.Encrypt([]byte(password), []byte(login))
 	if err != nil {
 		return nil, err
 	}
-	token, err := atp.AccessToken(string(login), string(ep))
+	ok, err := aa.IsAuthenticated(login, string(ep))
 	if err != nil {
 		return nil, err
 	}
-	return &Value{accessToken: token}, nil
+	if !ok {
+		err = errors.New("wrong login or password")
+		return nil, err
+	}
+	signin := &Signin{
+		Login:     string(login),
+		CreatedAt: time.Now().UTC(),
+	}
+	token, err = sis.Save(signin)
+	if err != nil {
+		return nil, err
+	}
+	return &Value{
+		logger:      l,
+		accessToken: token,
+	}, nil
 }
 
 func (v *Value) AccessToken() string {
