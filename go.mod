@@ -8,6 +8,6 @@ require (
 	github.com/egoholic/router v0.0.0-20191022201950-c00473fbfac3
 	github.com/lib/pq v1.2.0
 	github.com/sclevine/agouti v3.0.0+incompatible
-	github.com/stoa-bd/blogging-schema v0.0.0-20191025182824-80244d62bf57
-	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
+	github.com/stoa-bd/blogging-schema v0.0.0-20191027212804-197998775b95
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
 )

@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	accountSigningin "github.com/egoholic/editor/account/signingin/handler/http"
@@ -27,6 +30,16 @@ var (
 )
 
 func main() {
+	logger.Println("server starting...")
+	db, err = sql.Open("postgres", DBConnectionString)
+	if err != nil {
+		logger.Printf("ERROR: %s\n", err.Error())
+	}
+	defer db.Close()
+	err = db.Ping()
+	if err != nil {
+		logger.Printf("ERROR: %s\n", err.Error())
+	}
 	errBack, err = errback.New(
 		errback.WithBadRequest(badRequestHandler),
 		errback.WithNotFound(notFoundHandler),
@@ -40,6 +53,28 @@ func main() {
 	root := router.Root()
 	signin := root.Child("signin", &node.DumbForm{})
 	signin.POST(prepare(accountSigningin.New), "performs sign-in")
+	pid := os.Getpid()
+	pidf, err := os.Create(PIDFilePath)
+	if err != nil {
+		logger.Printf("FATALPID: %s   = %d\n", err.Error(), pid)
+	}
+	_, err = pidf.WriteString(strconv.Itoa(pid))
+	if err != nil {
+		logger.Printf("FATALPID: %s   = %d\n", err.Error(), pid)
+	}
+	defer func() {
+		err = pidf.Close()
+		if err != nil {
+			logger.Printf("FATALPID: %s   = %d\n", err.Error(), pid)
+		}
+		err = os.Remove(PIDFilePath)
+		if err != nil {
+			logger.Printf("FATALPID: %s   = %d\n", err.Error(), pid)
+		}
+	}()
+
+	logger.Printf("server listens :%d port\n", Port)
+	logger.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", Port), router))
 }
 
 func prepare(hb HandlerFnBuilder) handler.HandlerFn {
